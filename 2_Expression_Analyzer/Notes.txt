@@ -1,0 +1,65 @@
+1. Parser preserves parentheses around constants
+When simplifying, constants keep their parentheses around them
+
+Simplifying phase:
+(2)/(3) --simplify--> (2)/(3)
+
+Beautifying phase (after all simplification is done):
+(2)/(3) --beautify--> 2/3
+
+This way we can make sure that other simplifying rules can be used effectively.
+For example:
+
+CORRECT:
+(2)*((2)/(3)) --simplify--> (((2)*(2))/(3)) --simplify--> (((4))/(3)) --simplify--> ((4)/(3))
+Then we only have to create a regular expression that detects 
+- numbers in parentheses := constants
+- parentheses with text in between that are not numbers := groups to be simplified
+CORRECT^^^
+
+Because if we were to change the behaviour to removing the parentheses, then this would happen:
+WRONG:
+(2)*((2)/(3)) --simplify--> 2*((2)/(3))
+and then we would have to create a regular expression that detects both 2 and (2).
+- numbers in parentheses := constants
+- numbers not in parentheses := constants
+- parentheses with text in between that are not numbers := groups to be simplified
+WRONG^^^
+
+2. Simplifying is systematic
+There are set rules. Whenever the parser is given a string, it knows what to do.
+
+The idea is to start from the inner layer and work your way out
+		e.g. if we want to simplify (((3)+((3)+(6)))/(3)), we first evaluate ((3)+(6)) = (9).
+		Then we evaluate ((3)+(9)) = (12)
+		Then we evaluate ((12)/(3))
+
+Another example:
+		If we want to simplify (2)*((2)/(3))
+		The parser knows that it has to apply the rule of multiplying the numerator by the constant.
+		We get (((2)*(2))/(3)) and again we start from the inner layer
+
+So in conclusion, some simplifying rules are more important than others.
+
+simplify(string) algorithm:
+// Simplify parentheses
+IF there exists parentheses with text inside that contains * or +
+	-> Let's call the inside of the parentheses str, then replace str with simplify(str).
+IF there exists ((constant))
+	-> Replace it with (constant)
+
+// Simplify constants (which depends on the simplification of parentheses)
+ELSE IF there exists (constant1)*(constant2)
+	-> Replace it with (eval(constant1, '*', constant2)) => (constant3).
+	NOTE: eval can be the code that Yi created that calculates a javascript mathematical expression.
+			This would work, because a constant multiplied by a constant will not give a number with inifinite digits.
+ELSE IF there exists (constant1)+(constant2)
+	-> Replace it with (eval(constant1, '+', constant2)) => (constant3).
+
+// Simplify fractions (which depends on the existence of simplified constants)
+ELSE IF there exists (constant) * (fraction), where (fraction) is of the form ((a)/(b))
+	-> Replace it with (((constant)*(a))/(b))
+ELSE IF there exists (constant) / (fraction), where (fraction) is of the form ((a)/(b))
+	-> Replace it with (((constant)*(b))/(a))
+ELSE IF there exists (constant) + (fraction), where (fraction) is of the form ((a)/(b))
+	-> replace it with (((a)+((constant)*(b)))/(b))
