@@ -48,7 +48,7 @@ IF there exists parentheses with text inside that contains * or +
 IF there exists ((constant))
 	-> Replace it with (constant)
 
-// Simplify constants (which depends on the simplification of parentheses)
+// Simplify constant constant interactions
 ELSE IF there exists (constant1)*(constant2)
 	-> Replace it with (eval(constant1, '*', constant2)) => (constant3).
 	NOTE: eval can be the code that Yi created that calculates a javascript mathematical expression.
@@ -56,10 +56,18 @@ ELSE IF there exists (constant1)*(constant2)
 ELSE IF there exists (constant1)+(constant2)
 	-> Replace it with (eval(constant1, '+', constant2)) => (constant3).
 
-// Simplify fractions (which depends on the existence of simplified constants)
+// Simplify fraction fraction interactions
+ELSE IF there exists (fraction1) * (fraction2) where of the form ((a)/(b))*((c)/(d))
+	-> Replace it with (((a)*(c))/((b)*(d))
+ELSE IF there exists (fraction1) / (fraction2) where of the form ((a)/(b))/((c)/(d))
+	-> Replace it with (((a)*(d))/((b)*(c))
+
+// Simplify constant fractions interactions
 ELSE IF there exists (constant) * (fraction), where (fraction) is of the form ((a)/(b))
 	-> Replace it with (((constant)*(a))/(b))
 ELSE IF there exists (constant) / (fraction), where (fraction) is of the form ((a)/(b))
 	-> Replace it with (((constant)*(b))/(a))
 ELSE IF there exists (constant) + (fraction), where (fraction) is of the form ((a)/(b))
 	-> replace it with (((a)+((constant)*(b)))/(b))
+
+ELSE IF there exists (fraction) * (fraction
