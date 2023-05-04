@@ -1,5 +1,4 @@
-chrome.tabs.onUpdated.addListener((tabId, tab) => {
-    chrome.tabs.sendMessage(tabId, {
-        type: "refresh"
-    })
-});
+chrome.action.onClicked.addListener((tab) => {
+    chrome.tabs.sendMessage(tab.id, { type: "refresh" });
+  });
+  
