@@ -41,33 +41,55 @@ Another example:
 
 So in conclusion, some simplifying rules are more important than others.
 
+(6) * (4) * ((2)/(5))
+
+
 simplify(string) algorithm:
+NOTE: all 'a', 'b', 'c' etc. in fractions must be constants. 
 // Simplify parentheses
-IF there exists parentheses with text inside that contains * or +
-	-> Let's call the inside of the parentheses str, then replace str with simplify(str).
 IF there exists ((constant))
 	-> Replace it with (constant)
+ELSE IF there exists (((a)/(b)))
+	-> Replace it with ((a)/(b))
+ELSE IF there exists parentheses with text inside that contains non-numbers
+	-> Let's call the inside of the parentheses str, then replace str with simplify(str).
 
-// Simplify constant constant interactions
+// Multiplication
 ELSE IF there exists (constant1)*(constant2)
 	-> Replace it with (eval(constant1, '*', constant2)) => (constant3).
 	NOTE: eval can be the code that Yi created that calculates a javascript mathematical expression.
 			This would work, because a constant multiplied by a constant will not give a number with inifinite digits.
-ELSE IF there exists (constant1)+(constant2)
-	-> Replace it with (eval(constant1, '+', constant2)) => (constant3).
-
-// Simplify fraction fraction interactions
 ELSE IF there exists (fraction1) * (fraction2) where of the form ((a)/(b))*((c)/(d))
-	-> Replace it with (((a)*(c))/((b)*(d))
-ELSE IF there exists (fraction1) / (fraction2) where of the form ((a)/(b))/((c)/(d))
-	-> Replace it with (((a)*(d))/((b)*(c))
-
-// Simplify constant fractions interactions
+	-> Replace it with ( ((a)*(c)) / ((b)*(d)) )
 ELSE IF there exists (constant) * (fraction), where (fraction) is of the form ((a)/(b))
-	-> Replace it with (((constant)*(a))/(b))
+	-> Replace it with ( ((constant)*(a)) / (b) )
+ELSE IF there exists (fraction) * (constant)
+	-> Replace it with ( ((constant)*(a)) / (b) )
+
+// Division
 ELSE IF there exists (constant) / (fraction), where (fraction) is of the form ((a)/(b))
 	-> Replace it with (((constant)*(b))/(a))
+ELSE IF there exists (fraction) / (constant), where (fraction) is of the form ((a)/(b))
+	-> Replace it with ((a)/((constant)*(b)))
+ELSE IF there exists (fraction1) / (fraction2) where of the form (((a)/(b))/((c)/(d)))
+	-> Replace it with (((a)*(d))/((b)*(c)))
+
+// Addition
+ELSE IF there exists (constant1)+(constant2)
+	-> Replace it with (eval(constant1, '+', constant2)) => (constant3).
+ELSE IF there exists (fraction1) + (fraction2), where of the form ((c1)/(c2)) + ((c3)/(c4))
+	-> Replace it with (( ((c1) * (c4) + (c2) * (c3)) / ((c2)*(c4)) ))
 ELSE IF there exists (constant) + (fraction), where (fraction) is of the form ((a)/(b))
 	-> replace it with (((a)+((constant)*(b)))/(b))
+ELSE IF there exists (fraction) + (constant), where (fraction) is of the form ((a)/(b))
+	-> replace it with (((a)+((constant)*(b)))/(b))
 
-ELSE IF there exists (fraction) * (fraction
+// Subtraction
+ELSE IF there exists - (constant)
+	-> Replace it with + ((-1) * (constant))
+ELSE IF there exists - (fraction), where fraction is of the form ((constant1)/(constant2))
+	-> Replace it with + (((-1) * (constant1)) / (constant2))
+
+// Simplify fractions after all normal operations have been carried out
+ELSE IF there exists (fraction), where (fraction) is of the from ((a)/(b))
+	-> replace it with ( ((a)/(gcd(a,b)) / ((b)/(gcd(a,b)) )
