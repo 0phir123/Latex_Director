@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "Latex Director",
+    "description": "A free and fast solution that makes LaTeX a lot less daunting.",
+    "version": "1.0",
+    "icons": {
+    },
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+      {
+        "js": [
+          "scripts/parser.js",
+          "scripts/pagelistener.js"
+        ],
+        "matches": [
+          "http://*/*",
+          "https://*/*"
+        ]
+      }
+    ],
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "action": {}
+  }
