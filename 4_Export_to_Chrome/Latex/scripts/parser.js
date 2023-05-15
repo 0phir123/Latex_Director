@@ -41,19 +41,82 @@
         return formula;
     }
 
+    // check if given formula is in right syntax
     function parserCheckValid(string)
     {
+        //check if brackets are placed correctly;
+        //check if operator are missing or more than needed.
+        //check Operator are spelled correctly in the case of \cdot and \frac.
+        return (correctBracket(string) && !missingOrExtraOperator(string) && correctOperator(string));
+        //check if operator is placed correctly: right spelling; operator not forgotten when more than one constants are in the formula
+
         /*
             Examples:
             string = "1\cdot 2"     --> Correct
             string = "(1\cdot 2)"   --> Correct
+            string = "1 \cdt 2"     --> Fail
+            string = "\cdot 2"      --> Fail
             string = "({2)}"        --> Fail
             string = "(1 2)"        --> Fail
             string = "(1 + 2"       --> Fail
+            string = "5(\cdot 2)"   --> Fail
+            string = "(5\cdot  )"   --> Fail
+            string = "-1\\cdot (5+9)\\cdot \\frac{1}{4\\cdot \\frac{3*5}{2}}"   --> Correct
         */
+    }
+    function correctBracket(string){
+        let listOfBracket = [];
+        for(i = 0; i<string.length; i++){
+            if(string[i] == '(' || string[i] == '{') listOfBracket.push(string[i]);
+            // with closing bracket )
+            else if(string[i] == ')'){
+                if(listOfBracket.length == 0 || listOfBracket[listOfBracket.length-1] != '(') return false;
+                else
+                    listOfBracket.pop();
+            }
+            // with closing bracket }
+            else if(string[i] == '}'){
+                if(listOfBracket.length == 0 || listOfBracket[listOfBracket.length-1] != '{')  return false;
+                else
+                    listOfBracket.pop();
+            }
+        }
+        return listOfBracket==0;
+    }
 
+    // check if operator is added correctly, we allow +8 or -8.
+    function missingOrExtraOperator(formula){
+        if(/^\s*\\cdot/.test(formula) || /\\cdot\s*$/.test(formula) || formula.match(/\(\s*\\cdot/) || formula.match(/\\cdot\s*\)/))
+            return true;
+        else if(formula.match(/-?\d+\s{1,}-?\d+/g))
+            return true;
+        else
+            return false;
+    }
+
+    // check spelling   
+    function correctOperator(formula){
+        let i = 0;
+        while (i<formula.length){
+            if(formula[i] == "\\" ){
+                if(i+7<=formula.length){
+                	let subs = formula.substring(i, i+6);
+                    if(!(subs == "\\frac{" || subs == "\\cdot ")) return false;
+                    i = i+6;
+                }
+                else return false;
+            }
+            else if (formula[i].match(/^[a-zA-Z]$/))
+                return false;
+            else    
+                i++;
+        }
         return true;
     }
+    
+   
+
+
 
     function beautify(formula)
     {
@@ -339,4 +402,16 @@
         if(formula.charAt(0) == '+') formula = formula.substring(1);
         return formula;
     } 
+    // convert js formula to latex
+    function converToLatex(formula){
+        
+        if(formula.match(/(-?\d+)\/(-?\d+)/)) {
+            formula = formula.replace(/(-?\d+)\/(-?\d+)/, "\\frac{$1}{$2}");
+        }
+        return formula;
+    }
+    //"-3/4" to \frac{-3}{4}
+    //"-4" -> -4
+    
+
 })();
