@@ -149,6 +149,9 @@
     }
 
     function convertFormula(formula) {
+        while(formula.match(/(\-?\d+)\.(\d+)/)){
+            
+        }
         formula = formula.replace(/\\cdot/g, '*');
         formula = formula.replace(/\b(\d+)\b/g, '($1)'); /* add () to numbers */
         formula = formula.replace(/\(\((\d+)\)\)/g,'($1)'); /* delete extra () */
@@ -156,6 +159,20 @@
         formula = replaceFractions(formula);
         return formula; 
       }
+
+    function decimalToFrac(part1, part2){
+        let denominator = 1;
+        while(part2/10 !=0){
+            denominator = denominator*10;
+        }
+        
+        let numerator = denominator*part1 + part2;
+        let divisor = gcd(numerator, nominator);
+        numerator = numerator/divisor;
+        denominator = denominator/divisor;
+    
+        return "((" + numerator.toStirng()+")/("+ denominator.toString() + "))";
+    }
 
     function replaceFractions(formula) // \frac{\frac{1}{2}}{3}
     {
