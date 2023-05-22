@@ -5,7 +5,7 @@
         if (type == "latex-director-simplify-request")
         {
             let formula = getSimplifiedFormula(params.selectedText);
-            let latexCode = converToLatex(formula);
+            let latexCode = convertToLatex(formula);
 
             if (formula !== null)
             {
@@ -147,8 +147,31 @@
     }
 
     function convertFormula(formula) {
+        /*transform decimals into frac.*/
         while(formula.match(/(\-?\d+)\.(\d+)/)){
+            let match = formula.match(/(\-?\d+)\.(\d+)/);
+
+            const part1 = parseInt(match[1]); 
+            const part2 = parseInt(match[2]);
             
+            const result = decimalToFrac(part1, part2);
+            const substringRegex = new RegExp("(?<=^.{" + match.index + "}).{" + match[0].length + "}");
+            formula = formula.replace(substringRegex, result);
+        }
+        /*transform frac of form 2\frac{1}{2} into \frac{5}{2}.*/
+        while(formula.match(/(-?\d+)\\frac\{(\d+)\}\{(\d+)\}/)){
+            let match = formula.match(/(-?\d+)\\frac\{(\d+)\}\{(\d+)\}/);
+
+            const part1 = Number(match[1]); 
+            let result = "";
+            if(part1>0){
+                result = "((" + (part1*Number(match[3])+Number(match[2])).toString() + ")/(" + match[3] + "))";
+            }
+            else{
+                result = "((" + (part1*Number(match[3])-Number(match[2])).toString() + ")/(" + match[3] + "))";
+            }
+            const substringRegex = new RegExp("(?<=^.{" + match.index + "}).{" + match[0].length + "}");
+            formula = formula.replace(substringRegex, result);
         }
         formula = formula.replace(/\\cdot/g, '*');
         formula = formula.replace(/\b(\d+)\b/g, '($1)'); /* add () to numbers */
@@ -159,17 +182,15 @@
       }
 
     function decimalToFrac(part1, part2){
-        let denominator = 1;
-        while(part2/10 !=0){
-            denominator = denominator*10;
+        let denominator = Math.pow(10, part2.toString().length);
+        let numerator = 0;
+        if(part1<0){
+        	numerator = denominator*part1 - part2;
         }
-        
-        let numerator = denominator*part1 + part2;
-        let divisor = gcd(numerator, nominator);
-        numerator = numerator/divisor;
-        denominator = denominator/divisor;
-    
-        return "((" + numerator.toStirng()+")/("+ denominator.toString() + "))";
+        else{
+        	numerator = denominator*part1 + part2;
+        }
+        return "((" + numerator.toString()+")/("+ denominator.toString() + "))";    
     }
 
     function replaceFractions(formula) // \frac{\frac{1}{2}}{3}
@@ -418,7 +439,7 @@
         return formula;
     } 
     // convert js formula to latex
-    function converToLatex(formula){
+    function convertToLatex(formula){
         
         if(formula.match(/(-?\d+)\/(-?\d+)/)) {
             formula = formula.replace(/(-?\d+)\/(-?\d+)/, "\\frac{$1}{$2}");
