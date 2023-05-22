@@ -5,20 +5,18 @@
         if (type == "latex-director-simplify-request")
         {
             let formula = getSimplifiedFormula(params.selectedText);
-            
+            let latexCode = converToLatex(formula);
+
             if (formula !== null)
             {
                 // Send message to background page to open box
                 chrome.runtime.sendMessage({
                     type: "latex-director-bg-open-box",
                     params: {
-                        simplifiedFormula: formula
+                        simplifiedFormula: formula,
+                        latexCode: latexCode
                     }
                 });
-            }
-            else
-            {
-
             }
         }
     })
