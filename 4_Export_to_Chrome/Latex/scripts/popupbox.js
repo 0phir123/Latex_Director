@@ -1,18 +1,31 @@
 (() =>
 {
 
+
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const {type, params} = message;
     if (type === "latex-director-open-box") {
-      pathChooser(params.simplifiedFormula);
+      pathChooser(params.simplifiedFormula, params.LatexCode);
     }
   });
   
+
+    function copyToClipboard(text)
+    {
+        var dummyElement = document.createElement('textarea');
+        dummyElement.value = text;
+        document.body.appendChild(dummyElement);
+        dummyElement.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummyElement);
+    }
+
+
+
+
   
   
-  
-  
-  function pathChooser(str) {
+  function pathChooser(str,LatexCode) {
       if (str.includes("/")) {
         // Separate the input string into two parts
         const index = str.indexOf("/");
@@ -24,17 +37,17 @@
         const denominator = parseInt(secondString);
     
         // Call the function to display the fraction box
-        displayFractionBox(numerator, denominator);
+        displayFractionBox(numerator, denominator, LatexCode);
       } else {
         // Convert the input string to an integer value
         const value = parseInt(str);
     
         // Call the function to display the integer box
-        displayFractionValue(value);
+        displayFractionValue(value, LatexCode);
       }
     }
     
-    function displayFractionBox(numerator, denominator) {
+    function displayFractionBox(numerator, denominator,LatexCode) {
       // Create the fraction box HTML elements
       const fractionBox = document.createElement("div");
       fractionBox.style.padding = "10px";
@@ -72,18 +85,33 @@
       popupBox.style.zIndex = "9999";
     
       popupBox.innerHTML = "= <div style='display: inline-block; text-align: center; width: 100%;'>" + numerator + "</div><br>" + "<div style='display: inline-block; width: 100%; border-top: 1px solid black; text-align: center;'>" + denominator + "</div>";
-    
+        
+      // create a button
+    var button = document.createElement('button');
+    button.innerText = "Copy";
+    button.setAttribute("latex-code", LatexCode);
+    button.style.color = "#FFAAAA";
+
+
+
+
+
       // Append the popup box to the document body
       document.body.appendChild(popupBox);
+      popupBox.appendChild(button);
       // Add event listener to close popup box on click outside of it
       document.addEventListener("click", (event) => {
-      if (!popupBox.contains(event.target)) {
-        popupBox.remove();
-      }
-    });
+            if (!popupBox.contains(event.target)) {
+                popupBox.remove();
+            }
+        }   
+      );
+        button.addEventListener('click',function() {
+            copyToClipboard(this.getAttribute('latex-code'))
+        });
     }
     
-    function displayFractionValue(value) {
+    function displayFractionValue(value, LatexCode) {
       // Create the integer box HTML elements
       const fractionBox = document.createElement("div");
       fractionBox.style.padding = "10px";
@@ -109,13 +137,30 @@
       popupBox.style.zIndex = "9999";
     
       popupBox.innerHTML = "= <div style='display: inline-block; text-align: 	center;						   width: 100%;'>" + value + "</div>";
+      
+      // Create a button
+
+    var button = document.createElement('button');
+    button.innerText = "Copy";
+    button.setAttribute("latex-code", LatexCode);
+    button.style.color = "#FFAAAA";
+
+
+      
     
       document.body.appendChild(popupBox);
+      popupBox.appendChild(button);
       // Add event listener to close popup box on click outside of it
       document.addEventListener("click", (event) => {
         if (!popupBox.contains(event.target)) {
           popupBox.remove();
         }
       });
+
+      button.addEventListener('click',function() {
+        copyToClipboard(this.getAttribute('latex-code'))
+        });
     }
 })();
+
+
