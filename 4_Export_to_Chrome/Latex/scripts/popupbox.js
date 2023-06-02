@@ -5,7 +5,7 @@
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const {type, params} = message;
     if (type === "latex-director-open-box") {
-      pathChooser(params.simplifiedFormula, params.LatexCode);
+      pathChooser(params.simplifiedFormula, params.latexCode);
     }
   });
   
@@ -25,7 +25,7 @@
 
   
   
-  function pathChooser(str,LatexCode) {
+  function pathChooser(str,latexCode) {
       if (str.includes("/")) {
         // Separate the input string into two parts
         const index = str.indexOf("/");
@@ -37,17 +37,17 @@
         const denominator = parseInt(secondString);
     
         // Call the function to display the fraction box
-        displayFractionBox(numerator, denominator, LatexCode);
+        displayFractionBox(numerator, denominator, latexCode);
       } else {
         // Convert the input string to an integer value
         const value = parseInt(str);
     
         // Call the function to display the integer box
-        displayFractionValue(value, LatexCode);
+        displayFractionValue(value, latexCode);
       }
     }
     
-    function displayFractionBox(numerator, denominator,LatexCode) {
+    function displayFractionBox(numerator, denominator,latexCode) {
       // Create the fraction box HTML elements
       const fractionBox = document.createElement("div");
       fractionBox.style.padding = "10px";
@@ -89,7 +89,7 @@
       // create a button
     var button = document.createElement('button');
     button.innerText = "Copy";
-    button.setAttribute("latex-code", LatexCode);
+    button.setAttribute("latex-code", latexCode);
     button.style.color = "#FFAAAA";
 
 
@@ -111,7 +111,7 @@
         });
     }
     
-    function displayFractionValue(value, LatexCode) {
+    function displayFractionValue(value, latexCode) {
       // Create the integer box HTML elements
       const fractionBox = document.createElement("div");
       fractionBox.style.padding = "10px";
@@ -142,7 +142,7 @@
 
     var button = document.createElement('button');
     button.innerText = "Copy";
-    button.setAttribute("latex-code", LatexCode);
+    button.setAttribute("latex-code", latexCode);
     button.style.color = "#FFAAAA";
 
 
