@@ -11,7 +11,8 @@ chrome.runtime.onMessage.addListener((obj, sender, response) => {
           chrome.tabs.sendMessage(tabId, {
               type: "latex-director-open-box",
               params: {
-                  simplifiedFormula: params.simplifiedFormula
+                  simplifiedFormula: params.simplifiedFormula,
+                  latexCode: params.latexCode
               }
           })
       });
